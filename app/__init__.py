@@ -4,53 +4,42 @@ from dotenv import load_dotenv
 #from firebase_admin import credentials, firestore, initialize_app
 from datetime import datetime
 import json
-from . import db
+# from . import db
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.db import get_db
-from flask.typing import StatusCode
+# from app.db import get_db
+# from flask.typing import StatusCode
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-load_dotenv()
 app = Flask(__name__)
-app.config['DATABASE'] = os.path.join(os.getcwd(), 'flask.sqlite')
-db.init_app(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://{user}:{passwd}@{host}:{port}/{table}'.format(
+    user=os.getenv('POSTGRES_USER'),
+    passwd=os.getenv('POSTGRES_PASSWORD'),
+    host=os.getenv('POSTGRES_HOST'),
+    port=5432,
+    table=os.getenv('POSTGRES_DB'))
 
-#Initialize Firestore DB
-#firebase_creds = json.loads(os.getenv("FIREBASE_CREDS"))
-#cred = credentials.Certificate(firebase_creds)
-#default_app = initialize_app(cred)
-#db = firestore.client()
-#posts_ref = db.collection('posts')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#print(os.getenv("FIREBASE_CREDS"))
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+class UserModel(db.Model):
+    __tablename__ = 'users'
+
+    username = db.Column(db.String(), primary_key=True)
+    password = db.Column(db.String())
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def __repr__(self):
+        return f"<User {self.username}>"
+
 @app.route('/')
 def index():
     return render_template('index.html', url=os.getenv("URL"))
-
-#@app.route('/add-blog-post', methods=['GET', 'POST'])
-#def addBlogPost():
-#    try: 
-#        if request.method == 'POST':
-#            postdata = dict(request.form)
-#            new_post = {
-#                "title": postdata["title"],
-#                "content": postdata["content"],
-#                "date": datetime.now()
-#            }
-#            posts_ref.add(new_post)
-#
-#            return redirect(os.getenv("URL") + 'blog')
-#        else:
-#            return render_template('add-blog-post.html', url=os.getenv("URL"))
-#    except (Exception) as e:
-#        return f"An error Ocurred: {e}"
-
-#@app.route('/blog', methods=['GET'])
-#def blog():
-#    try: 
-#        all_posts = [doc.to_dict() for doc in posts_ref.stream()]
-#        return render_template('blog.html', posts=all_posts, url=os.getenv("URL"))
-#    except (Exception) as e:
-#        return f"An error Ocurred: {e}"
 
 @app.route('/health')
 def health():
