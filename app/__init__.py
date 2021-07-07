@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, redirect, render_template, send_from_directory, flash
-from dotenv import load_dotenv
-#from firebase_admin import credentials, firestore, initialize_app
+# from dotenv import load_dotenv
+# from firebase_admin import credentials, firestore, initialize_app
 from datetime import datetime
 import json
 # from . import db
