@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 # from . import db
 from werkzeug.security import check_password_hash, generate_password_hash
-# from app.db import get_db
+from app.db import get_db
 # from flask.typing import StatusCode
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
