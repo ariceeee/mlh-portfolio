@@ -31,4 +31,4 @@ services:
       - web
     
 volumes:
-    nginx_secrets:
+  nginx_secrets:
